@@ -7,6 +7,7 @@ Author:
 import cv2
 import numpy as np
 from iir_filter import IIRFilter
+import joblib
 
 class BallTracker:
 	"""
@@ -144,7 +145,7 @@ def test():
 	bt.set_hsv_hi((178, 255, 255))
 	bt.set_hsv_lo((127,98, 118))
 	while True:
-		(state, res) = bt.detect_ball_hsv(show_res=True)
+		(state, res) = bt.detect_ball(show_res=True)
 		if state != None:
 			(x, y, r) = state
 			print (x, y, r)
@@ -156,4 +157,4 @@ def test():
 
 	bt.release_cap()
 
-#test()
+test()
