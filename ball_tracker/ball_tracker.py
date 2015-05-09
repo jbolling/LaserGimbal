@@ -24,6 +24,7 @@ class BallTracker:
 		filter_tap: weight in iir filter
 		"""
 		self.cap = cv2.VideoCapture(cap)
+		assert(self.cap.isOpened())
 		self.h_lo, self.s_lo, self.v_lo = 0, 0, 0
 		self.h_hi, self.s_hi, self.v_hi = 100, 100, 100
 		self.hsv_lower = np.array([self.h_lo, self.s_lo, self.v_lo])
@@ -141,11 +142,11 @@ class BallTracker:
 Testing
 """
 def test():
-	bt = BallTracker(filter_tap=0.3)
+	bt = BallTracker(cap=1, filter_tap=0.3)
 	bt.set_hsv_hi((178, 255, 255))
 	bt.set_hsv_lo((127,98, 118))
 	while True:
-		(state, res) = bt.detect_ball(show_res=True)
+		(state, res) = bt.detect_ball(strat='HSV',show_res=True)
 		if state != None:
 			(x, y, r) = state
 			print (x, y, r)
@@ -157,4 +158,4 @@ def test():
 
 	bt.release_cap()
 
-test()
+#test()
