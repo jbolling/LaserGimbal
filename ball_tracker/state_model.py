@@ -80,14 +80,28 @@ class ball_ukf:
 		R1 = self.rotation_matrix(att)			  # Rotate from world frame to body frame
 		R2 = self.body2cam_matrix()				  # Rotate from body frame to camera frame
 		F = self.F								  # Project from camera frame to image coords
-		K = F.dot(R2.dot(R1))
-		pos = x[0:3,:]
-		im_hom = K.dot(pos)
-		meas = np.array([im_hom[0,0]/im_hom[2,0],
-						 im_hom[1,0]/im_hom[2,0]])
+		
+		pos_world = x[0:3,:]					  # Position of ball in world coordinates
+		pos_cam = R2.dot(R1.dot(pos_world))		  # Position of ball in camera coordinates 
+		edge_cam = pos_cam + np.array([[BALL_RADIUS],
+									   [0],
+									   [0]])	  # Position of ball's edge in camera coordinates
+		pos_im = F.dot(pos_cam)					  # Position of ball in image coordinates
+		edge_im = F.dot(edge_cam)
+		
+		#Convert from homogenous to pixel coordinates
+		pos_pix = np.array([pos_im[0,0]/pos_im[2,0],
+				 		    pos_im[1,0]/pos_im[2,0]])
+		edge_pix = np.array([edge_im[0,0]/edge_im[2,0],
+				 		     edge_im[1,0]/edge_im[2,0]])
+		r = np.linalg.norm(pos_pix-edge_pix)
+		meas = np.hstack((pos_pix,r))
 		return meas
 		
-	def rotation_matrix(self, att):    
+	def rotation_matrix(self, att):
+		"""
+		Returns the right-handed frame rotation matrix for gimbal attitude att
+		"""
 		att = np.deg2rad(att)
 		r_pitch = np.array([[ np.cos(att[1]), 0, -np.sin(att[1])],
 							[              0, 1,               0],
@@ -102,6 +116,10 @@ class ball_ukf:
 		return R
 		
 	def body2cam_matrix(self):
+		"""
+		Returns the right-handed frame rotation matrix for converting from
+		gimbal body coordinates to camera coordinates
+		"""
 		R = np.array([[1, 0,  0],
 					  [0, 0, -1],
 					  [0, 1,  0]])
@@ -111,7 +129,7 @@ def test():
 	bu = ball_ukf(None,None)
 	x = np.array([[1,2,3,0,0,0,0,0]]).T
 	print bu.laser_measurement(x)
-	x = np.array([[0,1,0,0,0,0,0,0]]).T
+	x = np.array([[0,1,0,0,0,0,0,10]]).T
 	print bu.camera_measurement(x)
 	
 test()
