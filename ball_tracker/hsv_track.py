@@ -48,7 +48,7 @@ H_LOW = 40, S_LOW = 184, V_LOW = 100
 H_HI = 63, S_HI = 255, V_HI = 255
 """
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 def nothing(x):
     pass
@@ -92,8 +92,8 @@ while(1):
     smooth = cv2.getTrackbarPos('smooth','result')
 
     # Normal masking algorithm
-    lower_blue = np.array([40, 184, 100])
-    upper_blue = np.array([63, 255, 255])
+    lower_blue = np.array([h, s, v])
+    upper_blue = np.array([h_hi, s_hi, v_hi])
 
     """
     H_LOW = 40, S_LOW = 184, V_LOW = 100
@@ -134,8 +134,6 @@ while(1):
 
     res = cv2.resize(result,None,fx=0.5, fy=0.5)
     cv2.imshow('result',mask)
-    cv2.imwrite('figures/' + str(frame_num) + '.jpg', mask)
-    time.sleep(1)
 
     frame_num += 1
 
